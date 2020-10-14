@@ -1,0 +1,6 @@
+{% for process in top_10_processes %}
+    {{process.pid}} &nbsp {{process.name}} &nbsp  {{process.cpu_percent}}
+
+    <br>
+
+{% endfor %}
