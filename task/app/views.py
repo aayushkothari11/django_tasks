@@ -1,19 +1,37 @@
 from django.shortcuts import render
-from datetime import datetime
+import datetime
 import psutil
 import pytz
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework import status
 from django.http.response import JsonResponse
+from .models import *
 
 # Create your views here.
 def time(request):
-    IST = pytz.timezone('Asia/Kolkata')
-    now = datetime.now(IST)
-    current_time = now.strftime("%H:%M:%S")
+    time_now = datetime.datetime.now(datetime.timezone.utc)
+    print(time_now)
+    current_time = time_now.strftime("%H:%M:%S")
+
+    time = Time.objects.all()[0]
+    last_visited = time.last_visited
+    time.last_visited = time_now
+    time.save()
+    print(time.last_visited)
+
     print("Current Time =", current_time)
-    return render(request, 'app/time.html', {'current_time':current_time})
+    # FMT = '%H:%M:%S'
+    # last_visited = last_visited.strftime("%H:%M:%S")
+    # difference = datetime.datetime.strptime(current_time, FMT) - datetime.datetime.strptime(str(last_visited), FMT)
+
+    difference = time_now - last_visited
+
+    last_visited = last_visited.strftime("%H:%M:%S")
+
+    return render(request, 'app/time.html', {'current_time':current_time,'last_visited':last_visited,'difference':difference})
+
+
 
 
 def process(request):
