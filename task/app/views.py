@@ -43,11 +43,21 @@ def process(request):
     SortedListOfProcObjects = sorted(listOfProcessNames, key=lambda procObj: procObj['cpu_percent'], reverse=True)
 
     for elem in SortedListOfProcObjects:
-        print(elem)
+        if len(Process.objects.filter(pid=elem['pid']))==1:
+            process = Process.objects.get(pid=elem['pid'])
+            current_diff = elem['cpu_percent'] - float(process.cpu_usage)
+            process.difference_from_last_time = current_diff
+            process.cpu_usage = elem['cpu_percent']
+            process.save()
+        elif len(Process.objects.filter(pid=elem['pid']))==0:
+           process = Process.objects.create(pid=elem['pid'],name=elem['name'],cpu_usage=elem['cpu_percent'],difference_from_last_time=0)
+           process.save()
 
-    top_10_processes = SortedListOfProcObjects[:10]
+    top_10_processes = Process.objects.all().order_by('-cpu_usage')[:10]
 
     return render(request, 'app/process.html', {'top_10_processes':top_10_processes})
+
+
 
 @api_view(['PUT'])
 def json(request):

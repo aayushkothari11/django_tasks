@@ -1,5 +1,9 @@
+PID &nbsp &nbsp Name &nbsp &nbsp  &nbsp current CPU usage &nbsp Difference from last time
+
+<br>
+
 {% for process in top_10_processes %}
-    {{process.pid}} &nbsp {{process.name}} &nbsp  {{process.cpu_percent}}
+    {{process.pid}} &nbsp {{process.name}} &nbsp &nbsp &nbsp  {{process.cpu_usage}} &nbsp  &nbsp &nbsp &nbsp &nbsp &nbsp {{process.difference_from_last_time}}
 
     <br>
 
