@@ -20,7 +20,8 @@ Time
 
 difference
 
-![Screenshot from 2020-10-14 16-49-54](https://user-images.githubusercontent.com/29770201/95982414-b9ec5800-0e3d-11eb-9a9b-0a110f4c7217.png)
+![Screenshot from 2020-10-16 11-24-38](https://user-images.githubusercontent.com/29770201/96218506-81b25a00-0fa2-11eb-9a38-ef98e13ed156.png)
+
 
 
 Data dumps 
