@@ -8,6 +8,16 @@ from rest_framework import status
 from django.http.response import JsonResponse
 from .models import *
 
+'''
+Function that converts time from UTC to local
+
+Input - UTX datatime
+Output - local datetime
+'''
+def utc_to_local(utc_dt):
+    tz = pytz.timezone('Asia/Kolkata')
+    return utc_dt.replace(tzinfo=datetime.timezone.utc).astimezone(tz=tz)
+
 
 '''
 A function which gets the current time and stores it in the database.
@@ -17,26 +27,28 @@ Input - NA
 Output - A dictionary of current time, last visited and difference is passed to the template.
 '''
 def time(request):
-    time_now = datetime.datetime.now(datetime.timezone.utc)
-    print(time_now)
-    current_time = time_now.strftime("%H:%M:%S")
+    time_now_utc = datetime.datetime.now(datetime.timezone.utc)
+    local_datetime_now = utc_to_local(time_now_utc)
+    current_time_local = local_datetime_now.strftime("%H:%M:%S")
+    print("Current Time =", current_time_local)
 
     time = Time.objects.all()[0]
-    last_visited = time.last_visited
-    time.last_visited = time_now
+    last_visited_utc = time.last_visited
+    time.last_visited = time_now_utc
     time.save()
-    print(time.last_visited)
 
-    print("Current Time =", current_time)
+    last_visited_local_datetime = utc_to_local(last_visited_utc)
+    last_visited_local_time = last_visited_local_datetime.strftime("%H:%M:%S")
+    print("Last visited Time =", last_visited_local_time)
+
+
     # FMT = '%H:%M:%S'
     # last_visited = last_visited.strftime("%H:%M:%S")
     # difference = datetime.datetime.strptime(current_time, FMT) - datetime.datetime.strptime(str(last_visited), FMT)
 
-    difference = time_now - last_visited
+    difference = time_now_utc - last_visited_utc
 
-    last_visited = last_visited.strftime("%H:%M:%S")
-
-    return render(request, 'app/time.html', {'current_time':current_time,'last_visited':last_visited,'difference':difference})
+    return render(request, 'app/time.html', {'current_time':current_time_local,'last_visited':last_visited_local_time,'difference':difference})
 
 
 '''
