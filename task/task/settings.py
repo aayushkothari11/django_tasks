@@ -115,6 +115,9 @@ USE_L10N = True
 
 USE_TZ = True
 
+'''
+Define the static and media URL routes. Currently not used as we don't have any static or media files.
+'''
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
