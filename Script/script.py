@@ -25,7 +25,7 @@ async def time():
 
 
 '''
-An Synchronous function that prints the content of the file on the terminal.
+An Asynchronous function that prints the content of the file on the terminal.
 The function only prints if the contents of the file have been changed.
 The value stored in cached_stamp represents the time when the file was last changed.
 The values of cached_stamp and os.stat(filename).st_mtime are compared to see if the file has been updated again or not.

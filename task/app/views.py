@@ -8,7 +8,14 @@ from rest_framework import status
 from django.http.response import JsonResponse
 from .models import *
 
-# Create your views here.
+
+'''
+A function which gets the current time and stores it in the database.
+The time value already present in the database before updation is used to calculate the differnce in values.
+
+Input - NA
+Output - A dictionary of current time, last visited and difference is passed to the template.
+'''
 def time(request):
     time_now = datetime.datetime.now(datetime.timezone.utc)
     print(time_now)
@@ -32,17 +39,35 @@ def time(request):
     return render(request, 'app/time.html', {'current_time':current_time,'last_visited':last_visited,'difference':difference})
 
 
+'''
+A function which uses the psutil package to get information about the processes running at that moment.
+The processes are then stored in the database with pid as primary key if they are not present with a difference value of zero.
+If the process are already present in the database then value of diffence is updated.
 
+Input - NA
+Output - A dictionary of top 10 processes sorted on CPU usage is passed to the template
+'''
 
 def process(request):
-    listOfProcessNames = list()
+    '''
+    Get all the running processes and store important properties such as pid, name and cpu_percent in a list of dictionaries.
+    '''
+    list_of_process_names = list()
     for proc in psutil.process_iter():
-       pInfoDict = proc.as_dict(attrs=['pid', 'name', 'cpu_percent'])
-       listOfProcessNames.append(pInfoDict)
+       process_info_dict = proc.as_dict(attrs=['pid', 'name', 'cpu_percent'])
+       list_of_process_names.append(process_info_dict)
 
-    SortedListOfProcObjects = sorted(listOfProcessNames, key=lambda procObj: procObj['cpu_percent'], reverse=True)
+    '''
+    Sort the list based on the CPU percentages.
+    '''
+    sorted_list_of_process_objects = sorted(list_of_process_names, key=lambda proc_obj: proc_obj['cpu_percent'], reverse=True)
 
-    for elem in SortedListOfProcObjects:
+
+    '''
+    Create a new Process object if pid not present in the database with a differnce of zero.
+    If pid already present update the differnce value accordingly.
+    '''
+    for elem in sorted_list_of_process_objects:
         if len(Process.objects.filter(pid=elem['pid']))==1:
             process = Process.objects.get(pid=elem['pid'])
             current_diff = elem['cpu_percent'] - float(process.cpu_usage)
@@ -53,12 +78,21 @@ def process(request):
            process = Process.objects.create(pid=elem['pid'],name=elem['name'],cpu_usage=elem['cpu_percent'],difference_from_last_time=0)
            process.save()
 
+    '''
+    Get a list of the top 10 processes in the database sorted on the cpu percent value.
+    '''
     top_10_processes = Process.objects.all().order_by('-cpu_usage')[:10]
 
     return render(request, 'app/process.html', {'top_10_processes':top_10_processes})
 
 
+'''
+An API which is exposed only to the PUT method. The API takes in the JSON passed in the request body and dumps it in the local text file.
+Accordingly a JSON Response is passed if the operation was successful.
 
+Input - JSON body
+Output - Data dumped in the local text file
+'''
 @api_view(['PUT'])
 def json(request):
     if request.method == "PUT":
